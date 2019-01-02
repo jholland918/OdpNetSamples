@@ -1,0 +1,112 @@
+﻿SET SQLBLANKLINES ON;
+SET DEFINE OFF;
+ALTER SESSION SET NLS_DATE_FORMAT = 'MM/DD/SYYYY HH24:MI:SS';
+ALTER SESSION SET NLS_TIMESTAMP_TZ_FORMAT = 'MM/DD/SYYYY HH24:MI:SS.FF TZH:TZM';
+ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'MM/DD/SYYYY HH24:MI:SS.FF';
+ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.,';
+ALTER SESSION SET NLS_NCHAR_CONV_EXCP = FALSE;
+ALTER SESSION SET TIME_ZONE = '-06:00';
+
+--
+-- Create package "SCOTT"."CHANGE"
+--
+-- CHANGE specification
+CREATE OR REPLACE PACKAGE SCOTT.CHANGE
+  AS
+
+  FUNCTION TO_ODCIVARCHAR2LIST(P_ASSOCIATIVE_ARRAY IN DBMS_SQL.VARCHAR2_TABLE)
+    RETURN SYS.ODCIVARCHAR2LIST;
+
+  FUNCTION TO_VARCHAR2_2000_TABLE_T(P_ASSOCIATIVE_ARRAY IN DBMS_SQL.VARCHAR2_TABLE)
+    RETURN VARCHAR2_2000_TABLE_T;
+
+  FUNCTION TO_VARCHAR2_2000_TABLE_T(P_ASSOCIATIVE_ARRAY IN USER_PACKAGE.VARCHAR2_2000_LIST_T)
+    RETURN VARCHAR2_2000_TABLE_T;
+
+END CHANGE;
+/
+-- CHANGE body
+
+CREATE OR REPLACE PACKAGE BODY SCOTT.CHANGE
+  AS
+
+  -- ================================================================================
+  -- Oracle makes it hard to use collections sometimes :(
+  -- --------------------------------------------------------------------------------
+  -- https://stackoverflow.com/questions/8785459/anonymous-table-or-varray-type-in-oracle
+  -- https://connor-mcdonald.com/2014/07/14/associative-arrays-and-nested-tables/
+  --
+  -- Some pre-defined types in Oracle that ***CAN*** be used for passing stuff back and forth to 3GL environments (for example .Net), but ***CANNOT*** be used within SQL natively:
+  -- DBMS_SQL.VARCHAR2_TABLE (TYPE varchar2_table IS TABLE OF VARCHAR2(2000) INDEX BY BINARY_INTEGER)
+  -- DBMS_SQL.NUMBER_TABLE
+  -- DBMS_SQL.DATE_TABLE
+  -- More at https://docs.oracle.com/cd/E11882_01/timesten.112/e21645/d_sql.htm#TTPLP71288
+  --
+  -- Some pre-defined types in Oracle that ***CANNOT*** be used for passing stuff back and forth to 3GL environments (for example .Net), but ***CAN*** be used within SQL natively:
+  -- sys.ODCIDateList
+  -- sys.ODCINumberList
+  -- sys.ODCIVarchar2List (VARRAY(32767) OF VARCHAR2(4000))
+  -- sys.dbms_debug_vc2coll (TABLE OF VARCHAR2(1000))
+  -- More at https://docs.oracle.com/cd/B19306_01/appdev.102/b14289/dcicnstnts.htm
+  -- ================================================================================
+
+  -- Description: Converts a DBMS_SQL.VARCHAR2_TABLE to SYS.ODCIVARCHAR2LIST so it can be used within SQL.
+  -- Remarks: This is useful if you don't want to set any special types up and aren't scared to use types in sys and DBMS_SQL
+  -- Depends: Nothing, yay!
+  -- See also: https://connor-mcdonald.com/2014/07/14/associative-arrays-and-nested-tables/
+  FUNCTION TO_ODCIVARCHAR2LIST(P_ASSOCIATIVE_ARRAY IN DBMS_SQL.VARCHAR2_TABLE)
+    RETURN SYS.ODCIVARCHAR2LIST
+    IS
+      V_VARRAY SYS.ODCIVARCHAR2LIST := SYS.ODCIVARCHAR2LIST();
+    BEGIN
+      V_VARRAY.extend(P_ASSOCIATIVE_ARRAY.count);
+      FOR i IN 1 .. P_ASSOCIATIVE_ARRAY.count
+      LOOP
+        V_VARRAY(i) := P_ASSOCIATIVE_ARRAY(i);
+      END LOOP;
+
+      RETURN V_VARRAY;
+    END TO_ODCIVARCHAR2LIST;
+
+  -- Description: Converts a DBMS_SQL.VARCHAR2_TABLE to a user nested table type of VARCHAR2(2000) so it can be used within SQL.
+  -- Remarks: This is useful if you're squeamish about using SYS.ODCIVARCHAR2LIST but still want to use DBMS_SQL.VARCHAR2_TABLE as the source assoc array.
+  -- Depends: The return table type to exist in schema: CREATE TYPE VARCHAR2_2000_TABLE_T AS TABLE OF VARCHAR2(2000);
+  -- See also: https://connor-mcdonald.com/2014/07/14/associative-arrays-and-nested-tables/
+  FUNCTION TO_VARCHAR2_2000_TABLE_T(P_ASSOCIATIVE_ARRAY IN DBMS_SQL.VARCHAR2_TABLE)
+    RETURN VARCHAR2_2000_TABLE_T
+    IS
+      V_NESTED_TABLE VARCHAR2_2000_TABLE_T := VARCHAR2_2000_TABLE_T();
+    BEGIN
+      V_NESTED_TABLE.extend(P_ASSOCIATIVE_ARRAY.count);
+      FOR i IN 1 .. P_ASSOCIATIVE_ARRAY.count
+      LOOP
+        V_NESTED_TABLE(i) := P_ASSOCIATIVE_ARRAY(i);
+      END LOOP;
+
+      RETURN V_NESTED_TABLE;
+    END TO_VARCHAR2_2000_TABLE_T;
+
+  -- Description: Converts a DBMS_SQL.VARCHAR2_TABLE to a user nested table type of VARCHAR2(2000) so it can be used within SQL.
+  -- Remarks: This is useful if you're squeamish about using SYS.ODCIVARCHAR2LIST and want to use a custom assoc array (not DBMS_SQL.VARCHAR2_TABLE)
+  -- Depends: 
+  --     The custom input parameter needs to be declared (USER_PACKAGE.VARCHAR2_2000_LIST_T)
+  --     The return table type to exist in schema: CREATE TYPE VARCHAR2_2000_TABLE_T AS TABLE OF VARCHAR2(2000);
+  -- See also: https://connor-mcdonald.com/2014/07/14/associative-arrays-and-nested-tables/
+  FUNCTION TO_VARCHAR2_2000_TABLE_T(P_ASSOCIATIVE_ARRAY IN USER_PACKAGE.VARCHAR2_2000_LIST_T)
+    RETURN VARCHAR2_2000_TABLE_T
+    IS
+      V_NESTED_TABLE VARCHAR2_2000_TABLE_T := VARCHAR2_2000_TABLE_T();
+    BEGIN
+      V_NESTED_TABLE.extend(P_ASSOCIATIVE_ARRAY.count);
+      FOR i IN 1 .. P_ASSOCIATIVE_ARRAY.count
+      LOOP
+        V_NESTED_TABLE(i) := P_ASSOCIATIVE_ARRAY(i);
+      END LOOP;
+
+      RETURN V_NESTED_TABLE;
+    END TO_VARCHAR2_2000_TABLE_T;
+
+END CHANGE;
+/
+
+COMMIT;

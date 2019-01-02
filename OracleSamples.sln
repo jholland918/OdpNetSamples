@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleSamples", "OracleSamples\OracleSamples.csproj", "{9B8ADCC1-B331-458B-9FAE-7737146FEDC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleSamples.Tests", "OracleSamples.Tests\OracleSamples.Tests.csproj", "{5285FCCD-0E2D-4FBE-800F-5383E12E4EFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B8ADCC1-B331-458B-9FAE-7737146FEDC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B8ADCC1-B331-458B-9FAE-7737146FEDC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B8ADCC1-B331-458B-9FAE-7737146FEDC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B8ADCC1-B331-458B-9FAE-7737146FEDC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5285FCCD-0E2D-4FBE-800F-5383E12E4EFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5285FCCD-0E2D-4FBE-800F-5383E12E4EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5285FCCD-0E2D-4FBE-800F-5383E12E4EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5285FCCD-0E2D-4FBE-800F-5383E12E4EFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A4B33971-8B3C-41B2-A4CF-AA667EE625D5}
+	EndGlobalSection
+EndGlobal
